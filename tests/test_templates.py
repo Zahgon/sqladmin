@@ -2,21 +2,15 @@
 from typing import Callable, Generator
 
 import pytest
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Session, declarative_base
-from sqlalchemy.pool import StaticPool
 from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
 from sqladmin import Admin, ModelView
+from tests.common import sync_engine as engine
 
 Base = declarative_base()
-engine = create_engine(
-    "sqlite:///:memory:",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-
 
 _ClientFixtureType = Callable[[str, str], TestClient]
 
