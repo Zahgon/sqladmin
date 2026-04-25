@@ -40,47 +40,13 @@ class QueryAjaxModelLoader:
         self._cached_fields = self._process_fields()
 
     def _process_fields(self) -> list:
-        remote_fields = []
-
-        for field in self.fields:
-            if isinstance(field, str):
-                attr = getattr(self.model, field, None)
-
-                if not attr:
-                    raise ValueError(f"{self.model}.{field} does not exist.")
-
-                remote_fields.append(attr)
-            else:
-                remote_fields.append(field)
-
-        return remote_fields
+        pass
 
     def format(self, model: type) -> dict[str, Any]:
-        if not model:
-            return {}
-
-        return {"id": str(get_object_identifier(model)), "text": str(model)}
+        pass
 
     async def get_list(self, term: str) -> list[Any]:
-        stmt = select(self.model)
-
-        # no type casting to string if a ColumnAssociationProxyInstance is given
-        filters = [
-            cast(field, String).ilike("%%%s%%" % term) for field in self._cached_fields
-        ]
-
-        stmt = stmt.filter(or_(*filters))
-
-        if self.order_by:
-            if isinstance(self.order_by, list):
-                for o in self.order_by:
-                    stmt = stmt.order_by(o)
-            else:
-                stmt = stmt.order_by(self.order_by)
-
-        stmt = stmt.limit(self.limit)
-        result = await self.model_admin._run_query(stmt)
-        return result
+        pass
 
 
 def create_ajax_loader(
@@ -89,12 +55,4 @@ def create_ajax_loader(
     name: str,
     options: dict,
 ) -> QueryAjaxModelLoader:
-    mapper = inspect(model_admin.model)
-
-    try:
-        attr = mapper.relationships[name]
-    except KeyError as exc:
-        raise ValueError(f"{model_admin.model}.{name} is not a relation.") from exc
-
-    remote_model = attr.mapper.class_
-    return QueryAjaxModelLoader(name, remote_model, model_admin, **options)
+    pass

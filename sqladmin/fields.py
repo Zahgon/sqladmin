@@ -50,14 +50,7 @@ class IntervalField(fields.StringField):
     """
 
     def process_formdata(self, valuelist: list[str]) -> None:
-        if not valuelist:
-            return
-
-        interval = parse_interval(valuelist[0])
-        if not interval:
-            raise ValueError("Invalide timedelta format.")
-
-        self.data = interval  # type: ignore[assignment]
+        pass
 
 
 class SelectField(fields.SelectField):
@@ -76,66 +69,21 @@ class SelectField(fields.SelectField):
         self.blank_text = blank_text or " "
 
     def iter_choices(self) -> Generator[tuple[str, str, bool, dict], None, None]:
-        choices = self.choices or []
-
-        if self.allow_blank:
-            yield ("__None", self.blank_text, self.data is None, {})
-
-        for choice in choices:
-            if isinstance(choice, tuple):
-                yield (choice[0], choice[1], self.coerce(choice[0]) == self.data, {})
-            elif isinstance(choice, Enum):
-                yield (
-                    choice.value,
-                    choice.name,
-                    self.coerce(choice.value) == self.data,
-                    {},
-                )
-            else:
-                yield (str(choice), str(choice), self.coerce(choice) == self.data, {})
+        pass
 
     def process_formdata(self, valuelist: list[str]) -> None:
-        if valuelist:
-            if valuelist[0] == "__None":
-                self.data = None
-            else:
-                try:
-                    self.data = self.coerce(valuelist[0])
-                except ValueError as exc:
-                    raise ValueError(
-                        self.gettext("Invalid Choice: could not coerce")
-                    ) from exc
+        pass
 
     def pre_validate(self, form: Form) -> None:
-        if self.allow_blank and self.data is None:
-            return
-
-        super().pre_validate(form)
+        pass
 
 
 class JSONField(fields.TextAreaField):
     def _value(self) -> str:
-        if self.raw_data:
-            return self.raw_data[0]
-
-        if self.data:
-            return str(json.dumps(self.data, ensure_ascii=False))
-
-        return "{}"
+        pass
 
     def process_formdata(self, valuelist: list[str]) -> None:
-        if valuelist:
-            value = valuelist[0]
-
-            # allow saving blank field as None
-            if not value:
-                self.data = None
-                return
-
-            try:
-                self.data = json.loads(valuelist[0])
-            except ValueError as exc:
-                raise ValueError(self.gettext("Invalid JSON")) from exc
+        pass
 
 
 class QuerySelectField(fields.SelectFieldBase):
@@ -169,52 +117,20 @@ class QuerySelectField(fields.SelectFieldBase):
 
     @property
     def data(self) -> tuple | None:
-        if self._formdata is not None:
-            for pk, _ in self._select_data:
-                if pk == self._formdata:
-                    self.data = pk
-                    break
-        return self._data
+        pass
 
     @data.setter
     def data(self, data: tuple | None) -> None:
-        self._data = data
-        self._formdata = None
+        pass
 
     def iter_choices(self) -> Generator[tuple[str, str, bool, dict], None, None]:
-        if self.allow_blank:
-            yield ("__None", self.blank_text, self.data is None, {})
-
-        if self.data:
-            primary_key = (
-                self.data
-                if isinstance(self.data, str)
-                else str(get_object_identifier(self.data))
-            )
-        else:
-            primary_key = None
-
-        for pk, label in self._select_data:
-            yield (pk, self.get_label(label), str(pk) == primary_key, {})
+        pass
 
     def process_formdata(self, valuelist: list[str]) -> None:
-        if valuelist:
-            if self.allow_blank and valuelist[0] == "__None":
-                self.data = None
-            else:
-                self._data = None
-                self._formdata = valuelist[0]
+        pass
 
     def pre_validate(self, form: Form) -> None:
-        data = self.data
-        if data is not None:
-            for pk, _ in self._select_data:
-                if data == pk:
-                    break
-            else:  # pragma: no cover
-                raise ValidationError(self.gettext("Not a valid choice"))
-        elif self._formdata or not self.allow_blank:
-            raise ValidationError(self.gettext("Not a valid choice"))
+        pass
 
 
 class QuerySelectMultipleField(QuerySelectField):
@@ -254,48 +170,20 @@ class QuerySelectMultipleField(QuerySelectField):
 
     @property
     def data(self) -> tuple | None:
-        formdata = self._formdata
-        if formdata is not None:
-            data = []
-            for pk, _ in self._select_data:
-                if not formdata:
-                    break
-
-                if pk in formdata:
-                    formdata.remove(pk)
-                    data.append(pk)
-            if formdata:
-                self._invalid_formdata = True
-            self.data = data or self._data  # type: ignore
-        return self._data
+        pass
 
     @data.setter
     def data(self, data: tuple | None) -> None:
-        self._data = data
-        self._formdata = None
+        pass
 
     def iter_choices(self) -> Generator[tuple[str, Any, bool, dict], None, None]:
-        if self.data is not None:
-            primary_keys = (
-                self.data
-                if all(isinstance(d, str) for d in self.data)
-                else [str(get_object_identifier(m)) for m in self.data]
-            )
-            for pk, label in self._select_data:
-                yield (pk, self.get_label(label), pk in primary_keys, {})
+        pass
 
     def process_formdata(self, valuelist: list[str]) -> None:
-        self._formdata = list(set(valuelist))
+        pass
 
     def pre_validate(self, form: Form) -> None:
-        if self._invalid_formdata:
-            raise ValidationError(self.gettext("Not a valid choice"))
-
-        if self.data:
-            pk_list = [x[0] for x in self._select_data]
-            for v in self.data:
-                if v not in pk_list:  # pragma: no cover
-                    raise ValidationError(self.gettext("Not a valid choice"))
+        pass
 
 
 class AjaxSelectField(fields.SelectFieldBase):
@@ -317,27 +205,17 @@ class AjaxSelectField(fields.SelectFieldBase):
 
     @property
     def data(self) -> Any:
-        if self._formdata:
-            self.data = self._formdata
-
-        return self._data
+        pass
 
     @data.setter
     def data(self, data: Any) -> None:
-        self._data = data
-        self._formdata = None
+        pass
 
     def process_formdata(self, valuelist: list) -> None:
-        if valuelist:
-            if self.allow_blank and valuelist[0] == "__None":
-                self.data = None
-            else:
-                self._data = None
-                self._formdata = valuelist[0]
+        pass
 
     def pre_validate(self, form: Form) -> None:
-        if not self.allow_blank and self.data is None:
-            raise ValidationError("Not a valid choice")
+        pass
 
 
 class AjaxSelectMultipleField(fields.SelectFieldBase):
@@ -363,22 +241,14 @@ class AjaxSelectMultipleField(fields.SelectFieldBase):
 
     @property
     def data(self) -> Any:
-        if self._formdata:
-            self.data = self._formdata
-
-        return self._data
+        pass
 
     @data.setter
     def data(self, data: Any) -> None:
-        self._data = data
-        self._formdata = set()
+        pass
 
     def process_formdata(self, valuelist: list) -> None:
-        self._formdata = set()
-
-        for field in valuelist:
-            for n in field.split(self.separator):
-                self._formdata.add(n)
+        pass
 
 
 class Select2TagsField(fields.SelectField):
@@ -387,10 +257,10 @@ class Select2TagsField(fields.SelectField):
     def pre_validate(self, form: Form) -> None: ...
 
     def process_formdata(self, valuelist: list) -> None:
-        self.data = valuelist
+        pass
 
     def process_data(self, value: list | None) -> None:
-        self.data = value or []
+        pass
 
 
 class FileField(fields.FileField):
@@ -412,30 +282,8 @@ class BooleanField(fields.BooleanField):
 class UuidField(fields.StringField):
     def process_formdata(self, valuelist: list) -> None:
         """Convert submitted string to UUID object."""
-        if valuelist:
-            value = valuelist[0]
-            if not value:  # Empty string
-                self.data = None
-                return
-
-            try:
-                self.data = UUID(value)  # type: ignore[assignment]
-            except (ValueError, AttributeError, TypeError) as e:
-                self.data = None
-                raise ValidationError(f"Invalid UUID format. {e}")
-        else:
-            self.data = None
+        pass
 
     def process_data(self, value: str | UUID | None) -> None:
         """Handle initial data (from object or default)."""
-        if value is None:
-            self.data = None
-        elif isinstance(value, UUID):
-            self.data = value  # type: ignore[assignment]
-        elif isinstance(value, str):
-            try:
-                self.data = UUID(value)  # type: ignore[assignment]
-            except (ValueError, AttributeError, TypeError):
-                self.data = None
-        else:
-            self.data = None
+        pass

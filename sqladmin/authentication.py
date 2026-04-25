@@ -58,18 +58,6 @@ def login_required(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @functools.wraps(func)
     async def wrapper_decorator(*args: Any, **kwargs: Any) -> Any:
-        view, request = args[0], args[1]
-        admin = getattr(view, "_admin_ref", view)
-        auth_backend = getattr(admin, "authentication_backend", None)
-        if auth_backend is not None:
-            response = await auth_backend.authenticate(request)
-            if isinstance(response, Response):
-                return response
-            if not bool(response):
-                return RedirectResponse(request.url_for("admin:login"), status_code=302)
-
-        if inspect.iscoroutinefunction(func):
-            return await func(*args, **kwargs)
-        return func(*args, **kwargs)
+        pass
 
     return wrapper_decorator

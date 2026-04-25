@@ -59,8 +59,4 @@ class Jinja2Templates:
         context: dict | None = None,
         status_code: int = 200,
     ) -> _TemplateResponse:
-        context = context or {}
-        context.setdefault("request", request)
-        template = self.env.get_template(name)
-        content = await template.render_async(context)
-        return _TemplateResponse(template, content, context, status_code)
+        pass

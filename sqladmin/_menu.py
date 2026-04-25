@@ -21,35 +21,33 @@ class ItemMenu:
         self.children.append(item)
 
     def is_visible(self, request: Request) -> bool:
-        return True
+        pass
 
     def is_accessible(self, request: Request) -> bool:
-        return True
+        pass
 
     def is_active(self, request: Request) -> bool:
-        return False
+        pass
 
     def url(self, request: Request) -> str | URL:
-        return "#"
+        pass
 
     @property
     def display_name(self) -> str:
-        return self.name
+        pass
 
     @property
     def type_(self) -> str:
-        return self.__class__.__name__
+        pass
 
 
 class CategoryMenu(ItemMenu):
     def is_active(self, request: Request) -> bool:
-        return any(
-            c.is_active(request) and c.is_accessible(request) for c in self.children
-        )
+        pass
 
     @property
     def type_(self) -> str:
-        return "Category"
+        pass
 
 
 class ViewMenu(ItemMenu):
@@ -63,26 +61,24 @@ class ViewMenu(ItemMenu):
         self.view = view
 
     def is_visible(self, request: Request) -> bool:
-        return self.view.is_visible(request)
+        pass
 
     def is_accessible(self, request: Request) -> bool:
-        return self.view.is_accessible(request)
+        pass
 
     def is_active(self, request: Request) -> bool:
-        return self.view.identity == request.path_params.get("identity")
+        pass
 
     def url(self, request: Request) -> str | URL:
-        if self.view.is_model:
-            return request.url_for("admin:list", identity=self.view.identity)
-        return request.url_for(f"admin:{self.view.identity}")
+        pass
 
     @property
     def display_name(self) -> str:
-        return getattr(self.view, "name_plural", None) or self.view.name
+        pass
 
     @property
     def type_(self) -> str:
-        return "View"
+        pass
 
 
 class Menu:

@@ -5,13 +5,12 @@ from markupsafe import Markup
 
 def empty_formatter(value: Any) -> str:
     """Return empty string for `None` value"""
-    return ""
+    pass
 
 
 def bool_formatter(value: bool) -> Markup:
     """Return check icon if value is `True` or X otherwise."""
-    icon_class = "fa-check text-success" if value else "fa-times text-danger"
-    return Markup("<i class='fa {}'></i>").format(icon_class)
+    pass
 
 
 BASE_FORMATTERS = {
